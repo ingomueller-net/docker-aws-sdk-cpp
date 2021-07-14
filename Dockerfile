@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM ubuntu:focal
 MAINTAINER Ingo Müller <ingo.mueller@inf.ethz.ch>
 
 # Basics
@@ -17,15 +17,17 @@ RUN apt-get update && \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Clang+LLVM
-RUN mkdir /opt/clang+llvm-7.0.1/ && \
-    cd /opt/clang+llvm-7.0.1/ && \
-    wget http://releases.llvm.org/7.0.1/clang+llvm-7.0.1-x86_64-linux-gnu-ubuntu-16.04.tar.xz -O - \
+RUN mkdir /opt/clang+llvm-11.1.0/ && \
+    cd /opt/clang+llvm-11.1.0/ && \
+    wget --progress=dot:giga https://github.com/llvm/llvm-project/releases/download/llvmorg-11.1.0/clang+llvm-11.1.0-x86_64-linux-gnu-ubuntu-16.04.tar.xz -O - \
          | tar -x -I xz --strip-components=1 && \
     for file in bin/*; \
     do \
-        ln -s $PWD/$file /usr/bin/$(basename $file)-7.0; \
+        ln -s $PWD/$file /usr/bin/$(basename $file)-11.1; \
     done && \
-    cp /opt/clang+llvm-7.0.1/lib/libomp.so /opt/clang+llvm-7.0.1/lib/libomp.so.5
+    ln -s libomp.so /opt/clang+llvm-11.1.0/lib/libomp.so.5 && \
+    update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-11.1 100 && \
+    update-alternatives --install /usr/bin/clang clang /usr/bin/clang-11.1 100
 
 # Build the SDK
 RUN mkdir -p /tmp/aws-sdk-cpp && \
@@ -34,7 +36,7 @@ RUN mkdir -p /tmp/aws-sdk-cpp && \
         | tar -xz --strip-components=1 && \
     mkdir -p /tmp/aws-sdk-cpp/build && \
     cd /tmp/aws-sdk-cpp/build && \
-    CXX=clang++-7.0 CC=clang-7.0 \
+    CXX=clang++ CC=clang \
         cmake \
             -DBUILD_ONLY="dynamodb;lambda;s3;sqs" \
             -DCMAKE_BUILD_TYPE=Debug \
