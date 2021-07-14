@@ -32,7 +32,7 @@ RUN mkdir /opt/clang+llvm-11.1.0/ && \
 # Build the SDK
 RUN mkdir -p /tmp/aws-sdk-cpp && \
     cd /tmp/aws-sdk-cpp && \
-    wget https://github.com/aws/aws-sdk-cpp/archive/1.7.138.tar.gz -O - \
+    wget https://github.com/aws/aws-sdk-cpp/archive/1.7.356.tar.gz -O - \
         | tar -xz --strip-components=1 && \
     mkdir -p /tmp/aws-sdk-cpp/build && \
     cd /tmp/aws-sdk-cpp/build && \
