@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:focal AS builder
 MAINTAINER Ingo Müller <ingo.mueller@inf.ethz.ch>
 
 # Basics
@@ -48,3 +48,8 @@ RUN mkdir -p /tmp/aws-sdk-cpp && \
             .. && \
     make install && \
     rm -rf /tmp/aws-sdk-cpp
+
+# Main image
+FROM ubuntu:focal
+
+COPY --from=builder /opt/aws-sdk-cpp-1.7 /opt/aws-sdk-cpp-1.7
