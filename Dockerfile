@@ -30,10 +30,8 @@ RUN mkdir /opt/clang+llvm-11.1.0/ && \
     update-alternatives --install /usr/bin/clang clang /usr/bin/clang-11.1 100
 
 # Build the SDK
-RUN mkdir -p /tmp/aws-sdk-cpp && \
-    cd /tmp/aws-sdk-cpp && \
-    wget https://github.com/aws/aws-sdk-cpp/archive/1.7.356.tar.gz -O - \
-        | tar -xz --strip-components=1 && \
+RUN git clone --depth 1 --shallow-submodules --recurse-submodules --branch 1.9.94 \
+        https://github.com/aws/aws-sdk-cpp.git /tmp/aws-sdk-cpp/ && \
     mkdir -p /tmp/aws-sdk-cpp/build && \
     cd /tmp/aws-sdk-cpp/build && \
     CXX=clang++ CC=clang \
@@ -43,8 +41,7 @@ RUN mkdir -p /tmp/aws-sdk-cpp && \
             -DCPP_STANDARD=17 \
             -DENABLE_TESTING=OFF \
             -DCUSTOM_MEMORY_MANAGEMENT=OFF \
-            -DCMAKE_INSTALL_PREFIX=/opt/aws-sdk-cpp-1.7/ \
-            -DAWS_DEPS_INSTALL_DIR:STRING=/opt/aws-sdk-cpp-1.7/ \
+            -DCMAKE_INSTALL_PREFIX=/opt/aws-sdk-cpp-1.9/ \
             .. && \
     make install && \
     rm -rf /tmp/aws-sdk-cpp
@@ -52,4 +49,4 @@ RUN mkdir -p /tmp/aws-sdk-cpp && \
 # Main image
 FROM ubuntu:focal
 
-COPY --from=builder /opt/aws-sdk-cpp-1.7 /opt/aws-sdk-cpp-1.7
+COPY --from=builder /opt/aws-sdk-cpp-1.9 /opt/aws-sdk-cpp-1.9
